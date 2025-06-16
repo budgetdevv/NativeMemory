@@ -57,6 +57,13 @@ namespace NativeMemory
             #endif
         }
 
+        // Wrap existing memory
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public NativeMemory(MemoryWindow<T> window)
+        {
+            Window = window;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(NativeMemory<T> other)
         {
