@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using NativeMemory.Helpers;
 using NoParamlessCtor.Shared.Attributes;
 
 namespace NativeMemory
@@ -15,17 +16,16 @@ namespace NativeMemory
         public readonly T[] PinnedArr;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public PinnedArrayMemory(nuint length, bool zeroed = true)
+        public PinnedArrayMemory(int length, bool zeroed = true, int alignment = 0)
         {
-            var intLength = unchecked((int) length);
+            PinnedArr = AllocationHelpers.AllocatePinnedArray<T>(
+                length,
+                out var ptr,
+                zeroed: zeroed,
+                alignment: alignment
+            );
 
-            var pinnedArr = PinnedArr = !zeroed ?
-                GC.AllocateArray<T>(intLength, pinned: true) :
-                GC.AllocateUninitializedArray<T>(intLength, pinned: true);
-
-            var ptr = (T*) Unsafe.AsPointer(ref MemoryMarshal.GetArrayDataReference(pinnedArr));
-
-            Window = new(ptr, length);
+            Window = new(ptr, length.ToNuintUnchecked());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
