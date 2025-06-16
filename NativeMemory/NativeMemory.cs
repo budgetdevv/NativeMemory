@@ -7,8 +7,9 @@ namespace NativeMemory
     [NoParamlessCtor]
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe partial struct NativeMemory<T>:
-        IDisposable,
-        IEquatable<NativeMemory<T>>
+        INativeMemory<T>,
+        IEquatable<NativeMemory<T>>,
+        IDisposable
         where T: unmanaged
     {
         #if DEBUG
@@ -19,6 +20,8 @@ namespace NativeMemory
         #endif
 
         public readonly MemoryWindow<T> Window;
+
+        MemoryWindow<T> INativeMemory<T>.Window => Window;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public NativeMemory(nuint length, bool zeroed = false, nuint alignment = 0)

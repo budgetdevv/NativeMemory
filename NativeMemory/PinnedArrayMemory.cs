@@ -7,10 +7,13 @@ namespace NativeMemory
     [NoParamlessCtor]
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe partial struct PinnedArrayMemory<T>:
+        INativeMemory<T>,
         IEquatable<PinnedArrayMemory<T>>
         where T: unmanaged
     {
         public readonly MemoryWindow<T> Window;
+
+        MemoryWindow<T> INativeMemory<T>.Window => Window;
 
         // POH arrays may still be collected by the GC, so keep a reference.
         public readonly T[] PinnedArr;
