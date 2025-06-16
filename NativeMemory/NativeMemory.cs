@@ -21,26 +21,36 @@ namespace NativeMemory
         public readonly MemoryWindow<T> Window;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public NativeMemory(nuint length, bool zeroed = false)
+        public NativeMemory(nuint length, bool zeroed = false, nuint alignment = 0)
         {
-            var size = (nuint) sizeof(T);
+            var sizeOfT = (nuint) sizeof(T);
 
             T* ptr;
 
-            if (!zeroed)
+            if (alignment != 0)
             {
-                ptr = (T*) NM.Alloc(length, size);
+                var byteCount = length * sizeOfT;
+
+                ptr = (T*) NM.AlignedAlloc(byteCount, alignment);
             }
 
             else
             {
-                ptr = (T*) NM.AllocZeroed(length, size);
+                if (!zeroed)
+                {
+                    ptr = (T*) NM.Alloc(length, sizeOfT);
+                }
+
+                else
+                {
+                    ptr = (T*) NM.AllocZeroed(length, sizeOfT);
+                }
             }
 
             Window = new(ptr, length);
 
             #if DEBUG
-            System.Diagnostics.Debug.Assert(LIVE_ALLOCATIONS.TryAdd((nint) ptr, size));
+            System.Diagnostics.Debug.Assert(LIVE_ALLOCATIONS.TryAdd((nint) ptr, sizeOfT));
             #endif
         }
 
@@ -82,7 +92,7 @@ namespace NativeMemory
             // ReSharper disable once UnusedVariable
             // We keep the size variable even though it is useless,
             // so that we can view the size via the debugger!
-            System.Diagnostics.Debug.Assert(LIVE_ALLOCATIONS.TryRemove((nint) ptr, out var size));
+            System.Diagnostics.Debug.Assert(LIVE_ALLOCATIONS.TryRemove((nint) ptr, out var sizeOfT));
             #endif
 
             NM.Free(ptr);
