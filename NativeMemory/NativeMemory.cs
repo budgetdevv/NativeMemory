@@ -12,7 +12,7 @@ namespace NativeMemory
         where T: unmanaged
     {
         #if DEBUG
-        // Ptr to size
+        // Ptr to sizeof(T)
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<nint, nuint> LIVE_ALLOCATIONS = new();
 
         public static int LiveAllocationsCount => LIVE_ALLOCATIONS.Count;
