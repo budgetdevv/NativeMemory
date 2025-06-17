@@ -5,7 +5,7 @@ using NoParamlessCtor.Shared.Attributes;
 namespace NativeMemory
 {
     [NoParamlessCtor]
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Auto)]
     public readonly unsafe partial struct PinnedArrayMemory<T>:
         INativeMemory<T>,
         IEquatable<PinnedArrayMemory<T>>
