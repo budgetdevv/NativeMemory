@@ -6,7 +6,8 @@ namespace NativeMemory
 {
     [NoParamlessCtor]
     [StructLayout(LayoutKind.Sequential)]
-    public readonly unsafe partial struct MemoryWindow<T>(T* ptr, nuint length): IEquatable<MemoryWindow<T>>
+    public readonly unsafe partial struct MemoryWindow<T>(T* ptr, nuint length):
+        IEquatable<MemoryWindow<T>>
         where T: unmanaged
     {
         public readonly T* Ptr = ptr;
