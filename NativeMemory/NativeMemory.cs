@@ -59,9 +59,17 @@ namespace NativeMemory
 
         // Wrap existing memory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeMemory(MemoryWindow<T> window)
+        private NativeMemory(MemoryWindow<T> window)
         {
             Window = window;
+        }
+
+        // This is unsafe, as it is possible for it to wrap any memory window,
+        // even if not allocated via NativeMemory.XXXX APIss
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static NativeMemory<T> WrapBufferUnsafely(MemoryWindow<T> window)
+        {
+            return new(window);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
