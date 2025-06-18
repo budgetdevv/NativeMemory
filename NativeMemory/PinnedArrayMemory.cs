@@ -18,17 +18,21 @@ namespace NativeMemory
         // POH arrays may still be collected by the GC, so keep a reference.
         public readonly T[] PinnedArr;
 
+        public int ArrayLength => PinnedArr.Length;
+
+        public int AlignedLength => unchecked((int) Window.Length);
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         public PinnedArrayMemory(int length, bool zeroed = true, int alignment = 0)
         {
             PinnedArr = AllocationHelpers.AllocatePinnedArray<T>(
                 length,
-                out var ptr,
+                out var alignedPtr,
                 zeroed: zeroed,
                 alignment: alignment
             );
 
-            Window = new(ptr, length.ToNuintUnchecked());
+            Window = new(alignedPtr, length.ToNuintUnchecked());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
