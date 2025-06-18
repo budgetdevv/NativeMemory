@@ -116,6 +116,7 @@ namespace NativeMemory
             NM.Free(ptr);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Dispose()
         {
             FreeWithPtrUnsafely(Window.Ptr);
