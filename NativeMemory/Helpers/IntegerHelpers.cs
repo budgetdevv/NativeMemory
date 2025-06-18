@@ -1,6 +1,6 @@
 namespace NativeMemory.Helpers
 {
-    internal static class IntegerHelpers
+    public static class IntegerHelpers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToSignedUnchecked(this uint value)
