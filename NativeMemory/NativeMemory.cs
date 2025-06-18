@@ -8,7 +8,6 @@ namespace NativeMemory
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe partial struct NativeMemory<T>:
         INativeMemory<T>,
-        IEquatable<NativeMemory<T>>,
         IDisposable
         where T: unmanaged
     {
@@ -70,37 +69,6 @@ namespace NativeMemory
         public static NativeMemory<T> WrapBufferUnsafely(MemoryWindow<T> window)
         {
             return new(window);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(NativeMemory<T> other)
-        {
-            var window = Window;
-
-            var otherWindow = other.Window;
-
-            return window == otherWindow;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is NativeMemory<T> other && Equals(other);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode()
-        {
-            return Window.GetHashCode();
-        }
-
-        public static bool operator ==(NativeMemory<T> left, NativeMemory<T> right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(NativeMemory<T> left, NativeMemory<T> right)
-        {
-            return !left.Equals(right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

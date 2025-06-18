@@ -7,8 +7,7 @@ namespace NativeMemory
     [NoParamlessCtor]
     [StructLayout(LayoutKind.Auto)]
     public readonly unsafe partial struct PinnedArrayMemory<T>:
-        INativeMemory<T>,
-        IEquatable<PinnedArrayMemory<T>>
+        INativeMemory<T>
         where T: unmanaged
     {
         public readonly MemoryWindow<T> Window;
@@ -33,33 +32,6 @@ namespace NativeMemory
             );
 
             Window = new(alignedPtr, length.ToNuintUnchecked());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(PinnedArrayMemory<T> other)
-        {
-            return PinnedArr == other.PinnedArr;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is NativeMemory<T> other && Equals(other);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode()
-        {
-            return Window.GetHashCode();
-        }
-
-        public static bool operator ==(PinnedArrayMemory<T> left, PinnedArrayMemory<T> right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(PinnedArrayMemory<T> left, PinnedArrayMemory<T> right)
-        {
-            return !left.Equals(right);
         }
     }
 }

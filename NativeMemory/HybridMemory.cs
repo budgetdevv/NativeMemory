@@ -8,7 +8,6 @@ namespace NativeMemory
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe partial struct HybridMemory<T>:
         INativeMemory<T>,
-        IEquatable<HybridMemory<T>>,
         IDisposable
         where T: unmanaged
     {
@@ -47,37 +46,6 @@ namespace NativeMemory
                     alignment: requiredAlignment
                 ).Window;
             }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(HybridMemory<T> other)
-        {
-            var window = Window;
-
-            var otherWindow = other.Window;
-
-            return window == otherWindow;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is HybridMemory<T> other && Equals(other);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode()
-        {
-            return Window.GetHashCode();
-        }
-
-        public static bool operator ==(HybridMemory<T> left, HybridMemory<T> right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(HybridMemory<T> left, HybridMemory<T> right)
-        {
-            return !left.Equals(right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
