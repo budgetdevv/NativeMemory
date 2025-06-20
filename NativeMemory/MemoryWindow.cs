@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Numerics.Tensors;
+using System.Runtime.InteropServices;
 using NativeMemory.Helpers;
 using NoParamlessCtor.Shared.Attributes;
 
@@ -38,6 +39,42 @@ namespace NativeMemory
             return MemoryMarshal.CreateReadOnlySpan(ref *Ptr, (int) Length);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TensorSpan<T> ToTensorSpan()
+        {
+            return new TensorSpan<T>(Ptr, unchecked((nint) Length));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TensorSpan<T> ToTensorSpan(ReadOnlySpan<nint> dimensions)
+        {
+            return new TensorSpan<T>(Ptr, unchecked((nint) Length), lengths: dimensions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlyTensorSpan<T> ToReadOnlyTensorSpan()
+        {
+            return new ReadOnlyTensorSpan<T>(Ptr, unchecked((nint) Length));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlyTensorSpan<T> ToReadOnlyTensorSpan(ReadOnlySpan<nint> dimensions)
+        {
+            return new ReadOnlyTensorSpan<T>(Ptr, unchecked((nint) Length), lengths: dimensions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MemoryWindow<F> Cast<F>() where F: unmanaged
+        {
+            return new(
+                ptr: (F*) Ptr,
+                length: UnsafeHelpers.CalculateCastLength<T, F>(Length)
+            );
+        }
+    }
+
+    public readonly unsafe partial struct MemoryWindow<T>
+    {
         public bool Equals(MemoryWindow<T> other)
         {
             return Ptr == other.Ptr && Length == other.Length;
@@ -61,15 +98,6 @@ namespace NativeMemory
         public override int GetHashCode()
         {
             return (int) Ptr;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MemoryWindow<F> Cast<F>() where F: unmanaged
-        {
-            return new(
-                ptr: (F*) Ptr,
-                length: UnsafeHelpers.CalculateCastLength<T, F>(Length)
-            );
         }
 
         public struct Enumerator
