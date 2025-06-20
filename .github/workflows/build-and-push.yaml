@@ -1,0 +1,60 @@
+name: Build and Push to NuGet
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish-nuget:
+    name: Publish NuGet
+    runs-on: ubuntu-latest
+    steps:
+      # https://stackoverflow.com/questions/77882485/github-actions-resource-not-accessible-by-integration
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          # required
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Install .NET 9.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Get short commit SHA
+        id: vars
+        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Get and increment alpha version number
+        id: bump_version
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          CURRENT_ALPHA_VERSION_NUMBER=$(gh variable get ALPHA_VERSION_NUMBER)
+          NEW_ALPHA_VERSION_NUMBER=$((CURRENT_ALPHA_VERSION_NUMBER + 1))
+          echo "NEW_ALPHA_VERSION_NUMBER=$NEW_ALPHA_VERSION_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Update ALPHA_VERSION_NUMBER in repository variable
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh variable set ALPHA_VERSION_NUMBER -b "${{ steps.bump_version.outputs.NEW_ALPHA_VERSION_NUMBER }}"
+
+      - name: Set Alpha Version
+        id: set_alpha_version
+        run: |
+          ALPHA_VERSION=alpha.${{ steps.bump_version.outputs.NEW_ALPHA_VERSION_NUMBER }}.${{ steps.vars.outputs.COMMIT_SHA }}
+          echo "ALPHA_VERSION=$ALPHA_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build NuGet package
+        working-directory: NativeMemory
+        run: dotnet pack -c Release -v:m /p:MainVersion=${{ vars.MAIN_VERSION_NUMBER }} /p:AlphaVersion=${{ steps.set_alpha_version.outputs.ALPHA_VERSION }}
+
+      - name: Publish NuGet package
+        working-directory: NativeMemory
+        run: dotnet nuget push -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate bin/Release/*.nupkg

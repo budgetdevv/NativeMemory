@@ -5,6 +5,9 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>preview</LangVersion>
+        <PackageId>NativeMemoryTMD</PackageId>
+        <VersionPrefix>$(MainVersion)</VersionPrefix>
+        <VersionSuffix>$(AlphaVersion)</VersionSuffix>
     </PropertyGroup>
 
     <ItemGroup>
