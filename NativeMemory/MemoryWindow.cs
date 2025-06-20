@@ -40,25 +40,25 @@ namespace NativeMemory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TensorSpan<T> ToTensorSpan()
+        public TensorSpan<T> AsTensorSpan()
         {
             return new TensorSpan<T>(Ptr, unchecked((nint) Length));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TensorSpan<T> ToTensorSpan(ReadOnlySpan<nint> dimensions)
+        public TensorSpan<T> AsTensorSpan(ReadOnlySpan<nint> dimensions)
         {
             return new TensorSpan<T>(Ptr, unchecked((nint) Length), lengths: dimensions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlyTensorSpan<T> ToReadOnlyTensorSpan()
+        public ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan()
         {
             return new ReadOnlyTensorSpan<T>(Ptr, unchecked((nint) Length));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlyTensorSpan<T> ToReadOnlyTensorSpan(ReadOnlySpan<nint> dimensions)
+        public ReadOnlyTensorSpan<T> AsReadOnlyTensorSpan(ReadOnlySpan<nint> dimensions)
         {
             return new ReadOnlyTensorSpan<T>(Ptr, unchecked((nint) Length), lengths: dimensions);
         }
