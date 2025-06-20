@@ -10,4 +10,8 @@
       <ProjectReference Include="..\NativeMemory\NativeMemory.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="FluentAssertions" Version="8.3.0" />
+    </ItemGroup>
+
 </Project>
