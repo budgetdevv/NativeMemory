@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using NoParamlessCtor.Shared.Attributes;
-using NM = System.Runtime.InteropServices.NativeMemory;
 
 namespace NativeMemory
 {
