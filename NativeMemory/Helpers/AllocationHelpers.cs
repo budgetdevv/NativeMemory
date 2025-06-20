@@ -46,7 +46,7 @@ namespace NativeMemory.Helpers
                 addr += (alignment - offset);
             }
 
-            if (addr % alignment != 0)
+            if (hasAlignment && addr % alignment != 0)
             {
                 throw new Exception("Failed to align the address!");
             }
