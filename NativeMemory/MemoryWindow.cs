@@ -2,9 +2,13 @@
 using System.Runtime.InteropServices;
 using NativeMemory.Helpers;
 using NoParamlessCtor.Shared.Attributes;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace NativeMemory
 {
+    // Initialization
     [NoParamlessCtor]
     [StructLayout(LayoutKind.Sequential)]
     public readonly unsafe partial struct MemoryWindow<T>(T* ptr, nuint length):
@@ -26,7 +30,56 @@ namespace NativeMemory
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryWindow(ref T pinnedStart, nuint length)
             : this((T*) Unsafe.AsPointer(ref pinnedStart), length) { }
+    }
 
+    // Slicing
+    public readonly unsafe partial struct MemoryWindow<T>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MemoryWindow<T> SliceWithStart(nuint start)
+        {
+            var length = Length - start;
+
+            #if DEBUG
+            Debug.Assert(
+                IsInRange(start, length),
+                $"{nameof(start)} {start} and {nameof(length)} {length} are out of range for {nameof(MemoryWindow<>)} of {nameof(Length)} {Length}."
+            );
+            #endif
+
+            return new MemoryWindow<T>(Ptr + start, length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MemoryWindow<T> SliceWithLength(nuint length)
+        {
+            #if DEBUG
+            Debug.Assert(
+                IsInRange(start: 0, length),
+                $"{nameof(length)} {length} is out of range for {nameof(MemoryWindow<>)} of {nameof(Length)} {Length}."
+            );
+            #endif
+
+            return new MemoryWindow<T>(Ptr, length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MemoryWindow<T> Slice(nuint start, nuint length)
+        {
+            #if DEBUG
+            Debug.Assert(
+                IsInRange(start, length),
+                $"{nameof(start)} {start} and {nameof(length)} {length} are out of range for {nameof(MemoryWindow<>)} of {nameof(Length)} {Length}."
+            );
+            #endif
+
+            return new MemoryWindow<T>(Ptr + start, length);
+        }
+    }
+
+    // Conversion
+    public readonly unsafe partial struct MemoryWindow<T>
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<T> AsSpan()
         {
@@ -73,8 +126,18 @@ namespace NativeMemory
         }
     }
 
+    // Equality comparison, enumerator and other utilities
     public readonly unsafe partial struct MemoryWindow<T>
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsInRange(nuint start, nuint length)
+        {
+            var localLength = Length;
+
+            return start < localLength &&
+                   length <= localLength - start;
+        }
+
         public bool Equals(MemoryWindow<T> other)
         {
             return Ptr == other.Ptr && Length == other.Length;
